@@ -12,24 +12,9 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def root():
-    return {"message": "AI Career Copilot API is running"}
-
-
 @app.get("/api/health")
-def health():
+def health_check():
     return {
         "status": "ok",
-        "message": "Backend is connected successfully"
-    }
-
-
-@app.get("/api/profile")
-def get_profile():
-    return {
-        "name": "Abir",
-        "role": "B.Tech CSE Student",
-        "target_year": 2027,
-        "goal": "Get a good tech job"
+        "message": "FastAPI backend is connected!"
     }
