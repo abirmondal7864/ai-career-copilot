@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
+import { healthCheck } from "./api/api";
 
 function App() {
-  const [message, setMessage] = useState("Connecting to backend...");
+  const [backendStatus, setBackendStatus] = useState("Checking backend...");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/health")
-      .then((response) => response.json())
+    healthCheck()
       .then((data) => {
-        setMessage(data.message);
+        setBackendStatus(data.message);
       })
-      .catch((error) => {
-        console.error(error);
-        setMessage("Failed to connect to backend");
+      .catch(() => {
+        setBackendStatus("Backend connection failed");
       });
   }, []);
 
   return (
     <div>
       <h1>AI Career Copilot</h1>
-      <p>{message}</p>
+      <p>{backendStatus}</p>
     </div>
   );
 }
