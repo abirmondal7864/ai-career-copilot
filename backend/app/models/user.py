@@ -29,6 +29,11 @@ class User(Base):
         nullable=False,
     )
 
+    password_hash: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
     career_profile: Mapped["CareerProfile | None"] = relationship(
         back_populates="user",
         uselist=False,
