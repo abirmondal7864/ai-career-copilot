@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-
 from app.api.routes.career import router as career_router
+from app.api.auth import router as auth_router
 
 
 app = FastAPI(
@@ -9,10 +9,9 @@ app = FastAPI(
 )
 
 
-app.include_router(
-    career_router,
-    prefix="/api/v1",
-)
+app.include_router(auth_router,prefix="/api")
+
+app.include_router(career_router, prefix="/api")
 
 
 @app.get("/")
