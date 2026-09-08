@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.models.career_profile import CareerProfile
-
-from app.schemas.user import UserCreate, UserResponse
+from app.api.dependencies import get_current_user
 
 from app.schemas.career import (
     CareerProfileRequest,
@@ -20,7 +19,7 @@ router = APIRouter(
 
 
 # =========================
-# Career Profile APIs
+# Helper
 # =========================
 
 def profile_to_response(profile: CareerProfile) -> dict:
@@ -40,6 +39,10 @@ def profile_to_response(profile: CareerProfile) -> dict:
     }
 
 
+# =========================
+# Career Profile APIs
+# =========================
+
 @router.post(
     "/profile",
     response_model=CareerProfileResponse,
@@ -48,8 +51,22 @@ def profile_to_response(profile: CareerProfile) -> dict:
 def create_profile(
     data: CareerProfileRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    existing_profile = (
+        db.query(CareerProfile)
+        .filter(CareerProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if existing_profile:
+        raise HTTPException(
+            status_code=400,
+            detail="Career profile already exists.",
+        )
+
     profile = CareerProfile(
+        user_id=current_user.id,
         name=data.name,
         education=data.education,
         skills=",".join(data.skills),
@@ -75,8 +92,13 @@ def create_profile(
 )
 def get_profile(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    profile = db.query(CareerProfile).first()
+    profile = (
+        db.query(CareerProfile)
+        .filter(CareerProfile.user_id == current_user.id)
+        .first()
+    )
 
     if profile is None:
         raise HTTPException(
@@ -94,8 +116,13 @@ def get_profile(
 def update_profile(
     data: CareerProfileRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    profile = db.query(CareerProfile).first()
+    profile = (
+        db.query(CareerProfile)
+        .filter(CareerProfile.user_id == current_user.id)
+        .first()
+    )
 
     if profile is None:
         raise HTTPException(
@@ -118,58 +145,3 @@ def update_profile(
     response["message"] = "Career profile updated successfully."
 
     return response
-
-# =========================
-# User APIs
-# =========================
-
-@router.get("/users")
-def get_users(
-    db: Session = Depends(get_db),
-):
-    users = db.query(User).all()
-
-    return {
-        "count": len(users),
-        "users": [
-            {
-                "id": user.id,
-                "email": user.email,
-                "name": user.name,
-            }
-            for user in users
-        ],
-    }
-
-
-@router.post(
-    "/users",
-    response_model=UserResponse,
-    status_code=201,
-)
-def create_user(
-    user_data: UserCreate,
-    db: Session = Depends(get_db),
-):
-    existing_user = (
-        db.query(User)
-        .filter(User.email == user_data.email)
-        .first()
-    )
-
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="A user with this email already exists.",
-        )
-
-    user = User(
-        name=user_data.name,
-        email=user_data.email,
-    )
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return user
