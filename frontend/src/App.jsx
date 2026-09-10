@@ -1,11 +1,59 @@
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
+import { apiRequest } from "./services/apiClient";
 import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const { isAuthenticated, logoutUser } = useAuth();
+
+
+  const testCareerAPI = async () => {
+  try {
+    const data = await apiRequest("/career/profile");
+    console.log("Career API:", data);
+  } catch (error) {
+    console.error("Career API error:", error.message);
+  }
+};
+
+
   return (
     <div>
       <h1>AI Career Copilot</h1>
 
-      <Login />
+      {isAuthenticated && (
+        <button onClick={logoutUser}>Logout</button>
+      )}
+
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Login />
+            )
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/dashboard" replace />}
+        />
+      </Routes>
     </div>
   );
 }
