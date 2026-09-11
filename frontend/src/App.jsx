@@ -5,19 +5,22 @@ import { apiRequest } from "./services/apiClient";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CareerProfile from "./components/CareerProfile";
+
+
 
 function App() {
   const { isAuthenticated, logoutUser } = useAuth();
 
 
   const testCareerAPI = async () => {
-  try {
-    const data = await apiRequest("/career/profile");
-    console.log("Career API:", data);
-  } catch (error) {
-    console.error("Career API error:", error.message);
-  }
-};
+    try {
+      const data = await apiRequest("/career/profile");
+      console.log("Career API:", data);
+    } catch (error) {
+      console.error("Career API error:", error.message);
+    }
+  };
 
 
   return (
@@ -45,6 +48,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <CareerProfile />
             </ProtectedRoute>
           }
         />

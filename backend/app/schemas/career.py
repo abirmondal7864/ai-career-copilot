@@ -20,3 +20,11 @@ class CareerProfileResponse(BaseModel):
     target_role: str
     years_experience: float
     message: str
+
+class CareerAnalysisResponse(BaseModel):
+    summary: str
+    strengths: list[str]
+    skill_gaps: list[str]
+    recommended_skills: list[str]
+    recommended_projects: list[str]
+    roadmap: list[str]

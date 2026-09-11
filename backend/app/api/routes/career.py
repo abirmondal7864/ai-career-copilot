@@ -5,10 +5,14 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.career_profile import CareerProfile
 from app.api.dependencies import get_current_user
+from app.services.career_ai import analyze_career_profile
+
+
 
 from app.schemas.career import (
     CareerProfileRequest,
     CareerProfileResponse,
+    CareerAnalysisResponse,
 )
 
 
@@ -145,3 +149,25 @@ def update_profile(
     response["message"] = "Career profile updated successfully."
 
     return response
+
+@router.post(
+    "/analyze",
+    response_model=CareerAnalysisResponse,
+)
+def analyze_profile(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    profile = (
+        db.query(CareerProfile)
+        .filter(CareerProfile.user_id == current_user.id)
+        .first()
+    )
+
+    if profile is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Career profile not found.",
+        )
+
+    return analyze_career_profile(profile)
