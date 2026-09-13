@@ -6,7 +6,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CareerProfile from "./components/CareerProfile";
-
+import CareerAnalysis from "./pages/CareerAnalysis";
 
 
 function App() {
@@ -62,10 +62,17 @@ function App() {
         />
 
         <Route
+          path="/career-analysis"
+          element={<CareerAnalysis />
+          }
+        />
+
+        <Route
           path="*"
           element={<Navigate to="/dashboard" replace />}
         />
       </Routes>
+
     </div>
   );
 }

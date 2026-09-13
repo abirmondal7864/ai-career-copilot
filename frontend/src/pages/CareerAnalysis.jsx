@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import apiClient from "../services/apiClient";
-
+import { apiRequest } from "../services/apiClient"; 
 function CareerAnalysis() {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -9,8 +8,10 @@ function CareerAnalysis() {
   useEffect(() => {
     const fetchAnalysis = async () => {
       try {
-        const response = await apiClient.get("/api/career/analyze");
-        setAnalysis(response.data);
+       const data = await apiRequest("/career/analyze", {
+          method: "POST",
+        });
+        setAnalysis(data);
       } catch (err) {
         console.error(err);
         setError("Failed to generate career analysis.");
