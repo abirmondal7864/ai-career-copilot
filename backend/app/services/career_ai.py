@@ -2,7 +2,8 @@ import os
 import json
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from fastapi import HTTPException
+from openai import OpenAI,RateLimitError
 
 from app.models.career_profile import CareerProfile
 from app.schemas.career import CareerAnalysisResponse
@@ -54,10 +55,10 @@ Return ONLY valid JSON with this exact structure:
   "roadmap": ["step 1", "step 2", "step 3"]
 }}
 """
-
-    response = client.chat.completions.create(
-        model="gemini-3.6-flash",
-        messages=[
+    try:
+        response = client.chat.completions.create(
+            model="gemini-3.6-flash",
+            messages=[
             {
                 "role": "system",
                 "content": "You are a helpful AI career advisor.",
@@ -69,8 +70,13 @@ Return ONLY valid JSON with this exact structure:
         ],
     )
 
-    content = response.choices[0].message.content
+        content = response.choices[0].message.content
 
-    result = json.loads(content)
+        result = json.loads(content)
+    except RateLimitError:
+        raise HTTPException(
+            status_code=429,
+            detail="AI analysis quota exceeded. Please try again later."
+        )
 
     return CareerAnalysisResponse(**result)

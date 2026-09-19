@@ -7,7 +7,7 @@ import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CareerProfile from "./components/CareerProfile";
 import CareerAnalysis from "./pages/CareerAnalysis";
-
+import "./App.css";
 
 function App() {
   const { isAuthenticated, logoutUser } = useAuth();
