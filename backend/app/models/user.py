@@ -38,3 +38,4 @@ class User(Base):
         back_populates="user",
         uselist=False,
     )
+    resumes = relationship("Resume", back_populates="user")

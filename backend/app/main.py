@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.routes.career import router as career_router
 from app.api.auth import router as auth_router
+from app.api.resume import router as resume_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -19,8 +20,8 @@ app.add_middleware(
 
 
 app.include_router(auth_router,prefix="/api")
-
 app.include_router(career_router, prefix="/api")
+app.include_router(resume_router, prefix="/api")
 
 
 @app.get("/")
