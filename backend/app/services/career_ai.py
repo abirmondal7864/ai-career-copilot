@@ -71,7 +71,12 @@ Return ONLY valid JSON with this exact structure:
     )
 
         content = response.choices[0].message.content
-
+        if not content:
+            raise HTTPException(
+            status_code=500,
+            detail="AI returned an empty response."
+        )
+    
         result = json.loads(content)
     except RateLimitError:
         raise HTTPException(
