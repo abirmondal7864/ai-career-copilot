@@ -1,14 +1,16 @@
-import fitz
+import pymupdf
 
 
 def extract_text_from_pdf(file_path: str) -> str:
-    document = fitz.open(file_path)
+    document = pymupdf.open(file_path)
 
-    text = ""
+    text_parts: list[str] = []
 
     for page in document:
-        text += page.get_text()
+        page_text = page.get_text("text")
+        if isinstance(page_text, str):
+            text_parts.append(page_text)
 
     document.close()
 
-    return text.strip()
+    return "\n".join(text_parts).strip()
