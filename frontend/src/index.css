@@ -109,3 +109,77 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+.resume-upload-container {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 20px;
+}
+
+.resume-upload-container h1 {
+  margin-bottom: 8px;
+}
+
+.resume-subtitle {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.upload-box input {
+  margin-bottom: 20px;
+}
+
+.upload-box button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.upload-box button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selected-file {
+  margin-top: 15px;
+}
+
+.success-message {
+  color: green;
+}
+
+.error-message {
+  color: red;
+}
+.resume-list {
+  margin-top: 40px;
+}
+
+.resume-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+  margin-top: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.resume-card p {
+  margin: 5px 0 0;
+  color: #777;
+}
+
+.resume-card span {
+  color: green;
+  font-weight: 600;
+}

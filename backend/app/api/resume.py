@@ -1,3 +1,4 @@
+from app.models import resume
 import os
 import tempfile
 
@@ -8,9 +9,10 @@ from app.db.database import get_db
 from app.models.resume import Resume
 from app.models.user import User
 from app.schemas.resume import ResumeResponse
+from app.schemas.resume_ai import ResumeAnalysisResponse
 from app.api.dependencies import get_current_user
 from app.services.pdf_parser import extract_text_from_pdf
-
+from app.services.resume_ai import analyze_resume_with_ai
 
 router = APIRouter(
     prefix="/resume",
@@ -51,3 +53,45 @@ async def create_resume(
 
     finally:
         os.remove(temp_file_path)
+
+
+@router.get("/", response_model=list[ResumeResponse])
+def get_resumes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return (
+        db.query(Resume)
+        .filter(Resume.user_id == current_user.id)
+        .order_by(Resume.id.desc())
+        .all()
+    )
+
+@router.post("/analyze", response_model=ResumeAnalysisResponse)
+def analyze_resume(
+    resume_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    resume = (
+        db.query(Resume)
+        .filter(
+            Resume.id == resume_id,
+            Resume.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not resume:
+        raise HTTPException(
+            status_code=404,
+            detail="Resume not found"
+        )
+
+    analysis = analyze_resume_with_ai(str(resume.content))
+
+    return {
+        "resume_id": resume.id,
+        "file_name": resume.file_name,
+        "analysis": analysis,
+    }

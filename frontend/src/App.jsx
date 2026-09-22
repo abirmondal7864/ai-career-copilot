@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CareerProfile from "./components/CareerProfile";
 import CareerAnalysis from "./pages/CareerAnalysis";
+import ResumeUpload from "./pages/ResumeUpload";
 import "./App.css";
 
 function App() {
@@ -65,6 +66,11 @@ function App() {
           path="/career-analysis"
           element={<CareerAnalysis />
           }
+        />
+        <Route 
+        path="/resume"
+        element={<ResumeUpload />
+          } 
         />
 
         <Route
