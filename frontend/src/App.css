@@ -221,3 +221,91 @@
 .analysis-card li {
   margin-bottom: 8px;
 }
+
+.resume-analysis {
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.resume-analysis h2 {
+  margin-bottom: 20px;
+}
+
+.analysis-score-card {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: #f5f7ff;
+  text-align: center;
+}
+
+.analysis-score-card h3 {
+  font-size: 42px;
+  margin: 5px 0;
+}
+
+.analysis-label {
+  margin: 0;
+  font-weight: 600;
+  color: #666;
+}
+
+.analysis-section {
+  padding: 20px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: #f8f9fa;
+}
+
+.analysis-section h3 {
+  margin-top: 0;
+}
+
+.analysis-section h4 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.analysis-section li {
+  margin-bottom: 8px;
+}
+
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag,
+.missing-skill-tag {
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.skill-tag {
+  background: #e8f5e9;
+}
+
+.missing-skill-tag {
+  background: #fff3e0;
+}
+
+@media (max-width: 700px) {
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resume-analysis {
+    padding: 15px;
+  }
+}

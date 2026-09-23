@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_URL = "http://localhost:8000/api";
+import { apiRequest } from "../services/apiClient";
 
 function ResumeUpload() {
   const [file, setFile] = useState(null);
@@ -32,28 +31,27 @@ function ResumeUpload() {
   };
   const fetchResumes = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(`${API_URL}/resume/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Failed to fetch resumes.");
-      }
-
+      const data = await apiRequest("/resume/");
       setResumes(data);
+
+      const analyzedResume = data.find((resume) => resume.analysis);
+
+      if (analyzedResume) {
+        setAnalysis({
+          resume_id: analyzedResume.id,
+          file_name: analyzedResume.file_name,
+          analysis: analyzedResume.analysis,
+        });
+      }
     } catch (err) {
       setError(err.message);
     }
   };
+
   useEffect(() => {
     fetchResumes();
   }, []);
+
   const handleUpload = async () => {
     if (!file) {
       setError("Please select a resume first.");
@@ -65,58 +63,36 @@ function ResumeUpload() {
     setError("");
 
     try {
-      const token = localStorage.getItem("access_token");
-
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:8000/api/resume/", {
+      const data = await apiRequest("/resume/", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Resume upload failed.");
-      }
-
       setMessage(`Resume uploaded: ${data.file_name}`);
       setFile(null);
-      await fetchResumes();
 
+      await fetchResumes();
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
   const handleAnalyze = async (resumeId) => {
     setAnalyzing(true);
     setError("");
     setAnalysis(null);
 
     try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(
-        `${API_URL}/resume/analyze?resume_id=${resumeId}`,
+      const data = await apiRequest(
+        `/resume/analyze?resume_id=${resumeId}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Resume analysis failed.");
-      }
 
       setAnalysis(data);
     } catch (err) {
@@ -169,58 +145,72 @@ function ResumeUpload() {
           <div className="resume-analysis">
             <h2>Resume Analysis</h2>
 
-            <div className="score">
-              <h3>Score</h3>
-              <p>{analysis.analysis.overall_score}/100</p>
+            {/* Score */}
+            <div className="analysis-score-card">
+              <div>
+                <p className="analysis-label">Overall Score</p>
+                <h3>{analysis.analysis.overall_score}/100</h3>
+              </div>
             </div>
 
-            <div>
-              <h3>Summary</h3>
+            {/* Summary */}
+            <div className="analysis-section">
+              <h3>📝 Summary</h3>
               <p>{analysis.analysis.summary}</p>
             </div>
 
-            <div>
-              <h3>Strengths</h3>
-              <ul>
-                {analysis.analysis.strengths.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
+            {/* Strengths & Weaknesses */}
+            <div className="analysis-grid">
+              <div className="analysis-section">
+                <h3>💪 Strengths</h3>
+                <ul>
+                  {analysis.analysis.strengths.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="analysis-section">
+                <h3>⚠️ Weaknesses</h3>
+                <ul>
+                  {analysis.analysis.weaknesses.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            <div>
-              <h3>Weaknesses</h3>
-              <ul>
-                {analysis.analysis.weaknesses.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {/* Skills */}
+            <div className="analysis-section">
+              <h3>🧠 Skills Analysis</h3>
 
-            <div>
-              <h3>Skills Analysis</h3>
-
-              <strong>Technical Skills</strong>
-              <ul>
+              <h4>Technical Skills</h4>
+              <div className="skills-container">
                 {analysis.analysis.skills_analysis.technical_skills.map(
                   (skill, index) => (
-                    <li key={index}>{skill}</li>
+                    <span className="skill-tag" key={index}>
+                      {skill}
+                    </span>
                   )
                 )}
-              </ul>
+              </div>
 
-              <strong>Missing Skills</strong>
-              <ul>
+              <h4>Missing Skills</h4>
+              <div className="skills-container">
                 {analysis.analysis.skills_analysis.missing_skills.map(
                   (skill, index) => (
-                    <li key={index}>{skill}</li>
+                    <span className="missing-skill-tag" key={index}>
+                      {skill}
+                    </span>
                   )
                 )}
-              </ul>
+              </div>
             </div>
 
-            <div>
-              <h3>Suggestions</h3>
+            {/* Suggestions */}
+            <div className="analysis-section">
+              <h3>🚀 Suggestions</h3>
+
               <ul>
                 {analysis.analysis.suggestions.map((item, index) => (
                   <li key={index}>{item}</li>

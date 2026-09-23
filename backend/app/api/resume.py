@@ -90,6 +90,11 @@ def analyze_resume(
 
     analysis = analyze_resume_with_ai(str(resume.content))
 
+    resume.analysis = analysis.model_dump() # type: ignore
+
+    db.commit()
+    db.refresh(resume)
+
     return {
         "resume_id": resume.id,
         "file_name": resume.file_name,
