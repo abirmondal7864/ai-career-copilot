@@ -7,8 +7,12 @@ function ResumeUpload() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resumes, setResumes] = useState([]);
-  const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+
+  const [analysis, setAnalysis] = useState(() => {
+    const savedAnalysis = localStorage.getItem("resume_analysis");
+    return savedAnalysis ? JSON.parse(savedAnalysis) : null;
+  });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -72,8 +76,12 @@ function ResumeUpload() {
       });
       setMessage(`Resume uploaded: ${data.file_name}`);
       setFile(null);
+      setAnalysis(null);
+      localStorage.removeItem("career_analysis");
+      localStorage.removeItem("resume_analysis");
 
       await fetchResumes();
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -95,6 +103,8 @@ function ResumeUpload() {
       );
 
       setAnalysis(data);
+      localStorage.setItem("resume_analysis", JSON.stringify(data));
+
     } catch (err) {
       setError(err.message);
     } finally {

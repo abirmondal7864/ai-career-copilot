@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient";
 function CareerAnalysis() {
-  const [analysis, setAnalysis] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [analysis, setAnalysis] = useState(() => {
+    const savedAnalysis = localStorage.getItem("career_analysis");
+    return savedAnalysis ? JSON.parse(savedAnalysis) : null;
+  });
+
+  const [loading, setLoading] = useState(() => {
+    return !localStorage.getItem("career_analysis");
+  });
+
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -12,6 +19,7 @@ function CareerAnalysis() {
           method: "POST",
         });
         setAnalysis(data);
+        localStorage.setItem("career_analysis", JSON.stringify(data));
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -44,7 +52,7 @@ function CareerAnalysis() {
       <div className="analysis-card">
         <h2>Strengths</h2>
         <ul>
-          {analysis.strengths.map((strength, index) => (
+          {(analysis.strengths || []).map((strength, index) => (
             <li key={index}>{strength}</li>
           ))}
         </ul>
@@ -53,16 +61,16 @@ function CareerAnalysis() {
       <div className="analysis-card">
         <h2>Skill Gaps</h2>
         <ul>
-          {analysis.skill_gaps.map((gap, index) => (
+          {(analysis.skill_gaps || []).map((gap, index) => (
             <li key={index}>{gap}</li>
           ))}
-  </ul>
-</div>
+        </ul>
+      </div>
 
       <div className="analysis-card">
         <h2>Recommended Skills</h2>
         <ul>
-          {analysis.recommended_skills.map((skill, index) => (
+          {(analysis.recommended_skills || []).map((skill, index) => (
             <li key={index}>{skill}</li>
           ))}
         </ul>
@@ -71,19 +79,19 @@ function CareerAnalysis() {
       <div className="analysis-card">
         <h2>Recommended Projects</h2>
         <ul>
-          {analysis.recommended_projects.map((project, index) => (
+          {(analysis.recommended_projects || []).map((project, index) => (
             <li key={index}>{project}</li>
           ))}
         </ul>
       </div>
       <div className="analysis-card">
-  <h2>Career Roadmap</h2>
-  <ol>
-    {analysis.roadmap.map((step, index) => (
-      <li key={index}>{step}</li>
-    ))}
-  </ol>
-</div>
+        <h2>Career Roadmap</h2>
+        <ol>
+          {(analysis.roadmap || []).map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
+        </ol>
+      </div>
 
     </div>
   );
