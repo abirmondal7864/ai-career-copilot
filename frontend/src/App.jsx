@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useState } from "react";
 import { useAuth } from "./context/AuthContext";
 import { apiRequest } from "./services/apiClient";
 import Login from "./components/Login";
@@ -8,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CareerProfile from "./components/CareerProfile";
 import CareerAnalysis from "./pages/CareerAnalysis";
 import ResumeUpload from "./pages/ResumeUpload";
+import ResumeAnalysis from "./components/ResumeAnalysis";
 import "./App.css";
 
 function App() {
@@ -70,6 +70,11 @@ function App() {
         <Route 
         path="/resume"
         element={<ResumeUpload />
+          } 
+        />
+        <Route 
+        path="/resume/analysis"
+        element={<ResumeAnalysis />
           } 
         />
 

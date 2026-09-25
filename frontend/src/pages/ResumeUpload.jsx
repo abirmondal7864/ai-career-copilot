@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../services/apiClient";
 
 function ResumeUpload() {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resumes, setResumes] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
-
-  const [analysis, setAnalysis] = useState(() => {
-    const savedAnalysis = localStorage.getItem("resume_analysis");
-    return savedAnalysis ? JSON.parse(savedAnalysis) : null;
-  });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -37,16 +34,6 @@ function ResumeUpload() {
     try {
       const data = await apiRequest("/resume/");
       setResumes(data);
-
-      const analyzedResume = data.find((resume) => resume.analysis);
-
-      if (analyzedResume) {
-        setAnalysis({
-          resume_id: analyzedResume.id,
-          file_name: analyzedResume.file_name,
-          analysis: analyzedResume.analysis,
-        });
-      }
     } catch (err) {
       setError(err.message);
     }
@@ -76,7 +63,6 @@ function ResumeUpload() {
       });
       setMessage(`Resume uploaded: ${data.file_name}`);
       setFile(null);
-      setAnalysis(null);
       localStorage.removeItem("career_analysis");
       localStorage.removeItem("resume_analysis");
 
@@ -92,7 +78,6 @@ function ResumeUpload() {
   const handleAnalyze = async (resumeId) => {
     setAnalyzing(true);
     setError("");
-    setAnalysis(null);
 
     try {
       const data = await apiRequest(
@@ -102,9 +87,9 @@ function ResumeUpload() {
         }
       );
 
-      setAnalysis(data);
       localStorage.setItem("resume_analysis", JSON.stringify(data));
 
+      navigate("/resume/analysis");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -151,84 +136,6 @@ function ResumeUpload() {
             ))
           )}
         </div>
-        {analysis && (
-          <div className="resume-analysis">
-            <h2>Resume Analysis</h2>
-
-            {/* Score */}
-            <div className="analysis-score-card">
-              <div>
-                <p className="analysis-label">Overall Score</p>
-                <h3>{analysis.analysis.overall_score}/100</h3>
-              </div>
-            </div>
-
-            {/* Summary */}
-            <div className="analysis-section">
-              <h3>📝 Summary</h3>
-              <p>{analysis.analysis.summary}</p>
-            </div>
-
-            {/* Strengths & Weaknesses */}
-            <div className="analysis-grid">
-              <div className="analysis-section">
-                <h3>💪 Strengths</h3>
-                <ul>
-                  {analysis.analysis.strengths.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="analysis-section">
-                <h3>⚠️ Weaknesses</h3>
-                <ul>
-                  {analysis.analysis.weaknesses.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div className="analysis-section">
-              <h3>🧠 Skills Analysis</h3>
-
-              <h4>Technical Skills</h4>
-              <div className="skills-container">
-                {analysis.analysis.skills_analysis.technical_skills.map(
-                  (skill, index) => (
-                    <span className="skill-tag" key={index}>
-                      {skill}
-                    </span>
-                  )
-                )}
-              </div>
-
-              <h4>Missing Skills</h4>
-              <div className="skills-container">
-                {analysis.analysis.skills_analysis.missing_skills.map(
-                  (skill, index) => (
-                    <span className="missing-skill-tag" key={index}>
-                      {skill}
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Suggestions */}
-            <div className="analysis-section">
-              <h3>🚀 Suggestions</h3>
-
-              <ul>
-                {analysis.analysis.suggestions.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
 
         {file && (
           <div className="selected-file">
