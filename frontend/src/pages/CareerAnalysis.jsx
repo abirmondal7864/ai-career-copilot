@@ -1,25 +1,29 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient";
 function CareerAnalysis() {
-  const [analysis, setAnalysis] = useState(() => {
-    const savedAnalysis = localStorage.getItem("career_analysis");
-    return savedAnalysis ? JSON.parse(savedAnalysis) : null;
-  });
-
-  const [loading, setLoading] = useState(() => {
-    return !localStorage.getItem("career_analysis");
-  });
-
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchAnalysis = async () => {
       try {
-        const data = await apiRequest("/career/analyze", {
-          method: "POST",
-        });
-        setAnalysis(data);
-        localStorage.setItem("career_analysis", JSON.stringify(data));
+        const resumes = await apiRequest("/resume/");
+        const latestResume = resumes[0];
+
+        if (!latestResume) {
+          throw new Error("No resume found. Please upload a resume first.");
+        }
+
+        if (!latestResume.analysis) {
+          throw new Error("Resume has not been analyzed yet.");
+        }
+
+        setAnalysis(latestResume.analysis);
+        localStorage.setItem(
+          "career_analysis",
+          JSON.stringify(latestResume.analysis)
+        );
       } catch (err) {
         console.error(err);
         setError(err.message);

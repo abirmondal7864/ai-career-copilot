@@ -13,7 +13,7 @@ client = genai.Client(
 
 def analyze_resume_with_ai(resume_text: str) -> ResumeAIResponse:
     prompt = f"""
-Analyze the following resume.
+Analyze the following resume for a software engineering candidate.
 
 Return ONLY valid JSON.
 Do not use markdown.
@@ -22,24 +22,26 @@ Do not add explanations outside the JSON.
 The JSON must follow this exact structure:
 
 {{
-    "overall_score": 0,
+    "readiness_score": 0,
     "summary": "",
     "strengths": [],
-    "weaknesses": [],
-    "skills_analysis": {{
-        "technical_skills": [],
-        "missing_skills": []
-    }},
-    "suggestions": []
+    "skill_gaps": [],
+    "recommended_skills": [],
+    "recommended_projects": [],
+    "roadmap": []
 }}
 
 Rules:
-- overall_score must be an integer from 0 to 100.
-- strengths must be a list of strings.
-- weaknesses must be a list of strings.
-- technical_skills must contain skills found in the resume.
-- missing_skills should contain relevant skills that could improve the candidate's profile.
-- suggestions must contain practical resume improvement suggestions.
+- readiness_score must be an integer from 0 to 100.
+- summary must briefly describe the candidate's current profile and career readiness.
+- strengths must contain specific strengths demonstrated by the resume.
+- skill_gaps must contain important skills the candidate is missing or should improve for software engineering jobs.
+- recommended_skills must contain specific technical skills the candidate should learn next.
+- recommended_projects must contain practical projects that would strengthen the candidate's profile.
+- roadmap must contain clear, ordered steps for improving career readiness.
+- All lists must contain useful, specific strings.
+- Base the analysis primarily on the information present in the resume.
+- Do not invent experience, projects, education, or skills that are not supported by the resume.
 
 Resume:
 {resume_text}

@@ -49,7 +49,7 @@ function ResumeAnalysis() {
       <div className="analysis-score-card">
         <div>
           <p className="analysis-label">Overall Score</p>
-          <h3>{analysis.analysis.overall_score}/100</h3>
+          <h3>{analysis.analysis.readiness_score}/100</h3>
         </div>
       </div>
 
@@ -64,7 +64,7 @@ function ResumeAnalysis() {
         <div className="analysis-section">
           <h3>💪 Strengths</h3>
           <ul>
-            {analysis.analysis.strengths.map((item, index) => (
+            {(analysis.analysis.strengths || []).map((item, index) => (
               <li key={index}>{item}</li>
             ))}
           </ul>
@@ -73,7 +73,7 @@ function ResumeAnalysis() {
         <div className="analysis-section">
           <h3>⚠️ Weaknesses</h3>
           <ul>
-            {analysis.analysis.weaknesses.map((item, index) => (
+            {(analysis.analysis.skill_gaps || []).map((item, index) => (
               <li key={index}>{item}</li>
             ))}
           </ul>
@@ -84,10 +84,10 @@ function ResumeAnalysis() {
       <div className="analysis-section">
         <h3>🧠 Skills Analysis</h3>
 
-        <h4>Technical Skills</h4>
+        <h4>Recommended Skills</h4>
 
         <div className="skills-container">
-          {analysis.analysis.skills_analysis.technical_skills.map(
+          {(analysis.analysis.recommended_skills || []).map(
             (skill, index) => (
               <span className="skill-tag" key={index}>
                 {skill}
@@ -99,22 +99,34 @@ function ResumeAnalysis() {
         <h4>Missing Skills</h4>
 
         <div className="skills-container">
-          {analysis.analysis.skills_analysis.missing_skills.map(
-            (skill, index) => (
-              <span className="missing-skill-tag" key={index}>
-                {skill}
-              </span>
-            )
-          )}
+          {(
+            analysis.analysis.skills_analysis?.missing_skills ||
+            analysis.analysis.skill_gaps ||
+            []
+          ).map((skill, index) => (
+            <span className="missing-skill-tag" key={index}>
+              {skill}
+            </span>
+          ))}
         </div>
       </div>
 
       {/* Suggestions */}
       <div className="analysis-section">
-        <h3>🚀 Suggestions</h3>
+        <h3>🚀 Recommended Projects</h3>
 
         <ul>
-          {analysis.analysis.suggestions.map((item, index) => (
+          {(analysis.analysis.recommended_projects || []).map(
+            (item, index) => (
+              <li key={index}>{item}</li>
+            )
+          )}
+        </ul>
+
+        <h3>🗺️ Roadmap</h3>
+
+        <ul>
+          {(analysis.analysis.roadmap || []).map((item, index) => (
             <li key={index}>{item}</li>
           ))}
         </ul>

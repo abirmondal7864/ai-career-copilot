@@ -22,6 +22,7 @@ class CareerProfileResponse(BaseModel):
     message: str
 
 class CareerAnalysisResponse(BaseModel):
+    readiness_score: int = Field(ge=0, le=100)
     summary: str
     strengths: list[str]
     skill_gaps: list[str]

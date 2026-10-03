@@ -54,6 +54,10 @@ Return ONLY valid JSON with this exact structure:
   "recommended_projects": ["project 1", "project 2"],
   "roadmap": ["step 1", "step 2", "step 3"]
 }}
+
+The readiness_score must be an integer from 0 to 100.
+Base it only on the candidate information provided.
+Do not invent skills, projects, or experience.
 """
     try:
         response = client.chat.completions.create(
@@ -71,13 +75,28 @@ Return ONLY valid JSON with this exact structure:
     )
 
         content = response.choices[0].message.content
+
         if not content:
             raise HTTPException(
-            status_code=500,
-            detail="AI returned an empty response."
-        )
-    
-        result = json.loads(content)
+                status_code=500,
+                detail="AI returned an empty response."
+            )
+
+        content = content.strip()
+
+        if content.startswith("```"):
+            content = content.replace("```json", "", 1)
+        content = content.replace("```", "", 1)
+        content = content.strip()
+
+        try:
+            result = json.loads(content)
+        except json.JSONDecodeError:
+            raise HTTPException(
+                status_code=500,
+                detail=f"AI returned invalid JSON: {content[:500]}"
+            )
+        
     except RateLimitError:
         raise HTTPException(
             status_code=429,
