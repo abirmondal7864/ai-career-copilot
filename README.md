@@ -116,11 +116,7 @@ Create a Render PostgreSQL database, then deploy the backend service from this r
 - `GEMINI_API_KEY`
 - `FRONTEND_URL`
 
-After deployment, run:
-
-```bash
-alembic upgrade head
-```
+The service runs `alembic upgrade head` automatically before starting FastAPI.
 
 Use the deployed backend URL as the frontend's `VITE_API_URL`.
 
