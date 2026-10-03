@@ -48,6 +48,7 @@ function Navbar() {
 
                     <NavLink
                         to="/resume"
+                        end
                         className={({ isActive }) =>
                             isActive ? "nav-link active" : "nav-link"
                         }

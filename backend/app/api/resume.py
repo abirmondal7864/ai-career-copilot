@@ -60,12 +60,20 @@ def get_resumes(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return (
+    resumes = (
         db.query(Resume)
         .filter(Resume.user_id == current_user.id)
         .order_by(Resume.id.desc())
         .all()
     )
+
+    print("CURRENT USER:", current_user.id, current_user.email)
+    print(
+        "USER RESUMES:",
+        [(r.id, r.user_id, r.file_name) for r in resumes]
+    )
+
+    return resumes
 
 @router.post("/analyze", response_model=ResumeAnalysisResponse)
 def analyze_resume(

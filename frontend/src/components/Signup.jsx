@@ -1,26 +1,35 @@
 import { useState } from "react";
-import { login } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
+import { register } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
+function Signup() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const { loginUser } = useAuth();
+    const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
         setMessage("");
         setLoading(true);
 
         try {
-            const data = await login(email, password);
-            loginUser(data.access_token);
-            setMessage("Login successful!");
+            await register({
+                name,
+                email,
+                password,
+            });
+
+            setMessage("Account created successfully! Redirecting...");
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 1000);
         } catch (error) {
-            setMessage(error.message || "Login failed. Please try again.");
+            setMessage(error.message || "Registration failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -52,14 +61,26 @@ function Login() {
                         YOUR CAREER WORKSPACE
                     </span>
 
-                    <h2>Welcome back.</h2>
+                    <h2>Create your account.</h2>
 
                     <p>
-                        Sign in to continue your preparation.
+                        Start your personalized career preparation.
                     </p>
                 </div>
 
-                <form onSubmit={handleLogin} className="login-form">
+                <form onSubmit={handleSignup} className="login-form">
+                    <div className="form-group">
+                        <label htmlFor="name">Name</label>
+                        <input
+                            id="name"
+                            type="text"
+                            placeholder="Your name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input
@@ -77,7 +98,7 @@ function Login() {
                         <input
                             id="password"
                             type="password"
-                            placeholder="Your password"
+                            placeholder="Create a password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -87,7 +108,7 @@ function Login() {
                     {message && (
                         <div
                             className={
-                                message === "Login successful!"
+                                message.startsWith("Account created")
                                     ? "success-message"
                                     : "error-message"
                             }
@@ -101,18 +122,18 @@ function Login() {
                         className="primary-button login-button"
                         disabled={loading}
                     >
-                        {loading ? "Signing in..." : "Continue"}
+                        {loading ? "Creating account..." : "Create account"}
                     </button>
                 </form>
 
                 <p className="login-footer">
-                    Don't have an account?{" "}
+                    Already have an account?{" "}
                     <button
                         type="button"
                         className="auth-link"
-                        onClick={() => window.location.href = "/signup"}
+                        onClick={() => navigate("/login")}
                     >
-                        Create new account
+                        Sign in
                     </button>
                 </p>
             </div>
@@ -120,4 +141,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;

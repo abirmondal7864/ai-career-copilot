@@ -1,22 +1,38 @@
 import { useEffect, useState } from "react";
+import { apiRequest } from "../services/apiClient";
 
 function ResumeAnalysis() {
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const savedAnalysis = localStorage.getItem("resume_analysis");
+    const fetchAnalysis = async () => {
+      try {
+        const resumes = await apiRequest("/resume/");
 
-    if (!savedAnalysis) {
-      setError("No resume analysis found. Analyze a resume first.");
-      return;
-    }
+        const analyzedResume = resumes.find(
+          (resume) => resume.analysis
+        );
 
-    try {
-      setAnalysis(JSON.parse(savedAnalysis));
-    } catch {
-      setError("Unable to load resume analysis.");
-    }
+        if (!analyzedResume) {
+          setError(
+            "No resume analysis found. Upload and analyze a resume first."
+          );
+          return;
+        }
+
+        setAnalysis(analyzedResume.analysis);
+
+        // Remove old cross-account cached analysis.
+        localStorage.removeItem("resume_analysis");
+      } catch (err) {
+        setError(
+          err.message || "Unable to load resume analysis."
+        );
+      }
+    };
+
+    fetchAnalysis();
   }, []);
 
   if (error) {
@@ -51,7 +67,7 @@ function ResumeAnalysis() {
     );
   }
 
-  const result = analysis.analysis || {};
+  const result = analysis.analysis || analysis;
 
   const strengths = result.strengths || [];
   const skillGaps = result.skill_gaps || [];
@@ -73,9 +89,10 @@ function ResumeAnalysis() {
         </p>
       </div>
 
-      {/* Score */}
       <div className="analysis-score-card">
-        <p className="analysis-label">Career Readiness Score</p>
+        <p className="analysis-label">
+          Career Readiness Score
+        </p>
 
         <div className="score-value">
           {result.readiness_score ?? 0}
@@ -87,7 +104,6 @@ function ResumeAnalysis() {
         </p>
       </div>
 
-      {/* Summary */}
       <div className="analysis-section">
         <h3>📝 Summary</h3>
         <p>
@@ -95,7 +111,6 @@ function ResumeAnalysis() {
         </p>
       </div>
 
-      {/* Strengths + Gaps */}
       <div className="analysis-grid">
         <div className="analysis-section">
           <h3>💪 Strengths</h3>
@@ -130,7 +145,6 @@ function ResumeAnalysis() {
         </div>
       </div>
 
-      {/* Skills */}
       <div className="analysis-section">
         <h3>🧠 Skills Analysis</h3>
 
@@ -174,7 +188,6 @@ function ResumeAnalysis() {
         </div>
       </div>
 
-      {/* Recommendations */}
       <div className="analysis-grid">
         <div className="analysis-section">
           <h3>🚀 Recommended Projects</h3>

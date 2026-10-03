@@ -180,11 +180,11 @@ function ResumeUpload() {
             </p>
           </div>
         ) : (
-          resumes.map((resume) => (
+          resumes.map((resume,index) => (
             <div className="resume-card" key={resume.id}>
               <div className="resume-info">
-                <strong>{resume.file_name}</strong>
-                <p>Resume ID: {resume.id}</p>
+                <strong>Resume {index + 1}</strong>
+                <p>{resume.file_name}</p>
               </div>
 
               <div className="resume-actions">
