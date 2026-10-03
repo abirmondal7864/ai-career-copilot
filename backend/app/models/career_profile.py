@@ -62,6 +62,7 @@ class CareerProfile(Base):
         default=0,
     )
 
+    # pyrefly: ignore [unknown-name]
     user: Mapped["User | None"] = relationship(
         back_populates="career_profile",
     )
