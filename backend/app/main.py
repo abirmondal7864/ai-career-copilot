@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import os
 
 from fastapi import FastAPI
@@ -21,7 +25,7 @@ app.add_middleware(
 )
 
 
-app.include_router(auth_router,prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(career_router, prefix="/api")
 app.include_router(resume_router, prefix="/api")
 
