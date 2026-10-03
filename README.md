@@ -36,8 +36,7 @@ ai-career-copilot/
 ├── backend/
 │   ├── app/
 │   ├── alembic/
-│   ├── requirements.txt
-│   └── render.yaml
+│   └── requirements.txt
 └── frontend/
     ├── src/
     ├── package.json
@@ -108,7 +107,7 @@ API docs: `http://localhost:8000/docs`
 
 ### Backend — Render
 
-The repository includes `backend/render.yaml`.
+The repository includes a root-level `render.yaml` Blueprint.
 
 Create a Render PostgreSQL database, then deploy the backend service from this repository using the blueprint. Set these environment variables:
 
