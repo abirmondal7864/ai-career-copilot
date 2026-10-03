@@ -51,6 +51,12 @@ class CareerProfile(Base):
         nullable=False,
     )
 
+    career_goal: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default="",
+    )
+
     years_experience: Mapped[float] = mapped_column(
         nullable=False,
         default=0,

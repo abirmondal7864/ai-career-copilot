@@ -1,36 +1,23 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import { apiRequest } from "./services/apiClient";
+
 import Login from "./components/Login";
+import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CareerProfile from "./components/CareerProfile";
 import CareerAnalysis from "./pages/CareerAnalysis";
 import ResumeUpload from "./pages/ResumeUpload";
 import ResumeAnalysis from "./components/ResumeAnalysis";
+
 import "./App.css";
 
 function App() {
-  const { isAuthenticated, logoutUser } = useAuth();
-
-
-  const testCareerAPI = async () => {
-    try {
-      const data = await apiRequest("/career/profile");
-      console.log("Career API:", data);
-    } catch (error) {
-      console.error("Career API error:", error.message);
-    }
-  };
-
+  const { isAuthenticated } = useAuth();
 
   return (
-    <div>
-      <h1>AI Career Copilot</h1>
-
-      {isAuthenticated && (
-        <button onClick={logoutUser}>Logout</button>
-      )}
+    <>
+      {isAuthenticated && <Navbar />}
 
       <Routes>
         <Route
@@ -64,18 +51,29 @@ function App() {
 
         <Route
           path="/career-analysis"
-          element={<CareerAnalysis />
+          element={
+            <ProtectedRoute>
+              <CareerAnalysis />
+            </ProtectedRoute>
           }
         />
-        <Route 
-        path="/resume"
-        element={<ResumeUpload />
-          } 
+
+        <Route
+          path="/resume"
+          element={
+            <ProtectedRoute>
+              <ResumeUpload />
+            </ProtectedRoute>
+          }
         />
-        <Route 
-        path="/resume/analysis"
-        element={<ResumeAnalysis />
-          } 
+
+        <Route
+          path="/resume/analysis"
+          element={
+            <ProtectedRoute>
+              <ResumeAnalysis />
+            </ProtectedRoute>
+          }
         />
 
         <Route
@@ -83,8 +81,7 @@ function App() {
           element={<Navigate to="/dashboard" replace />}
         />
       </Routes>
-
-    </div>
+    </>
   );
 }
 

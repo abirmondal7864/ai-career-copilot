@@ -38,6 +38,7 @@ def profile_to_response(profile: CareerProfile) -> dict:
             else []
         ),
         "target_role": profile.target_role,
+        "career_goal": profile.career_goal or "",
         "years_experience": profile.years_experience,
         "message": "Career profile retrieved successfully.",
     }
@@ -77,6 +78,7 @@ def create_profile(
         projects=",".join(data.projects),
         experience=",".join(data.experience),
         target_role=data.target_role,
+        career_goal=data.career_goal,
         years_experience=data.years_experience,
     )
 
@@ -140,6 +142,7 @@ def update_profile(
     profile.projects = ",".join(data.projects)
     profile.experience = ",".join(data.experience)
     profile.target_role = data.target_role
+    profile.career_goal = data.career_goal
     profile.years_experience = data.years_experience
 
     db.commit()

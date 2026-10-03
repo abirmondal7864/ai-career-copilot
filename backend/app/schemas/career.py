@@ -8,8 +8,8 @@ class CareerProfileRequest(BaseModel):
     projects: list[str] = Field(default_factory=list)
     experience: list[str] = Field(default_factory=list)
     target_role: str = Field(min_length=1)
+    career_goal: str = Field(default="")
     years_experience: float = Field(default=0, ge=0)
-
 
 class CareerProfileResponse(BaseModel):
     name: str
@@ -18,6 +18,7 @@ class CareerProfileResponse(BaseModel):
     projects: list[str]
     experience: list[str]
     target_role: str
+    career_goal: str
     years_experience: float
     message: str
 
