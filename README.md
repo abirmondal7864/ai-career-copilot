@@ -58,7 +58,7 @@ cd ai-career-copilot
 cd backend
 python -m venv .venv
 # Windows
-.venv\Scripts\activate
+.venv\\Scripts\\activate
 # Linux/macOS
 source .venv/bin/activate
 
@@ -107,32 +107,19 @@ API docs: `http://localhost:8000/docs`
 
 ### Backend — Render
 
-The repository includes a root-level `render.yaml` Blueprint.
+The backend is deployed on Render from the `backend/` root directory.
 
-Create a Render PostgreSQL database, then deploy the backend service from this repository using the blueprint. Set these environment variables:
+Production backend:
+https://ai-career-copilot-k4d0.onrender.com
 
-- `DATABASE_URL`
-- `SECRET_KEY`
-- `GEMINI_API_KEY`
-- `FRONTEND_URL`
-
-The service runs `alembic upgrade head` automatically before starting FastAPI.
-
-Use the deployed backend URL as the frontend's `VITE_API_URL`.
+The deployed service runs FastAPI with PostgreSQL and Alembic migrations.
 
 ### Frontend — Vercel
 
-Create a Vercel project from this GitHub repository with:
+The frontend is deployed on Vercel from the `frontend/` directory.
 
-- Root Directory: `frontend`
-- Build Command: `npm run build`
-- Output Directory: `dist`
-
-Set:
-
-```text
-VITE_API_URL=https://YOUR-BACKEND-URL
-```
+Production frontend:
+https://ai-career-copilot-six-plum.vercel.app
 
 The included `frontend/vercel.json` keeps React Router routes working on direct refreshes.
 
@@ -147,4 +134,14 @@ Example files are provided as:
 
 ## 📌 Status
 
-Project is structured for production deployment. Complete the Vercel frontend and Render backend setup, then verify authentication, resume upload, AI analysis, and dashboard flows end-to-end.
+**Production deployment complete.**
+
+The application is deployed with:
+- React + Vite frontend on Vercel
+- FastAPI backend on Render
+- PostgreSQL database
+- JWT authentication
+- Resume upload and AI analysis
+- Career profile and dashboard flows
+
+Latest production deployments have been verified after resolving authentication, API routing, database migration, and JSON/HTML response issues.
