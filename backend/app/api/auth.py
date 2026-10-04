@@ -57,7 +57,7 @@ def login_user(
 ):
     user = (
         db.query(User)
-        .filter(User.email == user_data.username)
+        .filter(User.email == user_data.email)
         .first()
     )
 
