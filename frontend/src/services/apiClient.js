@@ -1,9 +1,9 @@
 // Local development talks directly to FastAPI.
-// Production uses the Vercel same-origin /api rewrite to Render.
+// Production talks directly to the deployed Render API.
 const API_BASE_URL =
     window.location.hostname === "localhost"
         ? "http://localhost:8000"
-        : "";
+        : "https://ai-career-copilot-k4d0.onrender.com";
 
 const API_URL = `${API_BASE_URL}/api`;
 
@@ -29,7 +29,10 @@ export async function apiRequest(endpoint, options = {}) {
         },
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+        ? await response.json()
+        : { detail: await response.text() };
 
     if (!response.ok) {
         if (response.status === 401) {
