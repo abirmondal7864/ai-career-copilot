@@ -1,33 +1,50 @@
 # 🚀 AI Career Copilot
 
-AI Career Copilot is a full-stack career assistant that helps candidates understand their career readiness, analyze resumes, identify skill gaps, and generate personalized career guidance.
+> An AI-powered career assistant that analyzes resumes, evaluates career readiness, identifies skill gaps, and generates personalized career guidance.
 
-## ✨ Features
+[![Live App](https://img.shields.io/badge/Live%20App-Open-success)](https://ai-career-copilot-six-plum.vercel.app)
+[![Frontend](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel)](https://ai-career-copilot-six-plum.vercel.app)
+[![Backend](https://img.shields.io/badge/Backend-Render-purple)](https://ai-career-copilot-k4d0.onrender.com)
 
-- 🔐 User authentication with JWT
-- 📄 Resume upload and AI-powered resume analysis
-- 🎯 Career readiness analysis
-- 🧠 Skill-gap identification and recommendations
-- 📊 Career dashboard and profile persistence
+## ✨ What It Does
+
+- 🔐 JWT-based authentication
+- 📄 Resume upload and AI-powered analysis
+- 🎯 Career readiness scoring
+- 🧠 Skill-gap detection and recommended skills
+- 🗺️ Personalized career roadmap and project recommendations
+- 👤 Persistent career profile and dashboard
 - 🤖 Gemini-powered AI features
-- 🗄️ PostgreSQL database with SQLAlchemy and Alembic
-- ⚛️ React + Vite frontend
-- ⚡ FastAPI backend
+
+## 🧩 Architecture
+
+```text
+React + Vite
+     │
+     ▼
+FastAPI REST API
+     │
+     ├── JWT Authentication
+     ├── Career & Resume APIs
+     └── Gemini AI integration
+     │
+     ▼
+PostgreSQL
+     │
+SQLAlchemy + Alembic
+```
 
 ## 🛠️ Tech Stack
 
-**Frontend**
-- React
-- Vite
-- React Router
-
-**Backend**
-- FastAPI
-- SQLAlchemy
-- Alembic
-- PostgreSQL
-- JWT authentication
-- Gemini API
+| Layer | Technologies |
+|---|---|
+| Frontend | React, Vite, React Router |
+| Backend | FastAPI, Python |
+| Database | PostgreSQL |
+| ORM / Migrations | SQLAlchemy, Alembic |
+| Authentication | JWT |
+| AI | Gemini API |
+| Deployment | Vercel, Render |
 
 ## 📁 Project Structure
 
@@ -43,105 +60,64 @@ ai-career-copilot/
     └── vercel.json
 ```
 
-## 💻 Local Setup
+## 💻 Run Locally
 
-### 1. Clone
+### Backend
 
 ```bash
 git clone https://github.com/abirmondal7864/ai-career-copilot.git
-cd ai-career-copilot
-```
+cd ai-career-copilot/backend
 
-### 2. Backend
-
-```bash
-cd backend
 python -m venv .venv
+
 # Windows
 .venv\\Scripts\\activate
+
 # Linux/macOS
 source .venv/bin/activate
 
 pip install -r requirements.txt
-```
-
-Create `.env` from `.env.example` and set:
-
-- `DATABASE_URL`
-- `SECRET_KEY`
-- `GEMINI_API_KEY`
-- `FRONTEND_URL`
-
-Run migrations:
-
-```bash
 alembic upgrade head
-```
-
-Start the API:
-
-```bash
 uvicorn app.main:app --reload
 ```
 
-### 3. Frontend
+Create `backend/.env` with:
+
+```env
+DATABASE_URL=your_postgresql_url
+SECRET_KEY=your_secret_key
+GEMINI_API_KEY=your_gemini_key
+FRONTEND_URL=http://localhost:5173
+```
+
+### Frontend
 
 ```bash
 cd ../frontend
 npm install
-```
-
-Create `.env` from `.env.example`.
-
-```bash
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`
+Frontend: `http://localhost:5173`  
+API: `http://localhost:8000`  
+Swagger: `http://localhost:8000/docs`
 
-Backend: `http://localhost:8000`
+## 🔐 Security
 
-API docs: `http://localhost:8000/docs`
+Never commit real API keys, database credentials, JWT secrets, or production environment files.
+
+Use the provided `.env.example` files for local configuration.
 
 ## 🚀 Deployment
 
-### Backend — Render
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** PostgreSQL
 
-The backend is deployed on Render from the `backend/` root directory.
-
-Production backend:
-https://ai-career-copilot-k4d0.onrender.com
-
-The deployed service runs FastAPI with PostgreSQL and Alembic migrations.
-
-### Frontend — Vercel
-
-The frontend is deployed on Vercel from the `frontend/` directory.
-
-Production frontend:
-https://ai-career-copilot-six-plum.vercel.app
-
-The included `frontend/vercel.json` keeps React Router routes working on direct refreshes.
-
-## 🔐 Environment Variables
-
-Never commit real API keys, database passwords, JWT secrets, or production environment files.
-
-Example files are provided as:
-
-- `backend/.env.example`
-- `frontend/.env.example`
+Production deployment has been tested across authentication, API routing, database migrations, and frontend/backend integration.
 
 ## 📌 Status
 
-**Production deployment complete.**
+**Production-ready portfolio project.**
 
-The application is deployed with:
-- React + Vite frontend on Vercel
-- FastAPI backend on Render
-- PostgreSQL database
-- JWT authentication
-- Resume upload and AI analysis
-- Career profile and dashboard flows
-
-Latest production deployments have been verified after resolving authentication, API routing, database migration, and JSON/HTML response issues.
+Built as a practical full-stack + AI application to explore how LLM-powered features can be integrated into a real web product.
