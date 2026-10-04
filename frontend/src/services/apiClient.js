@@ -1,9 +1,9 @@
-// Use the configured API URL in production, while keeping localhost for local development.
+// Local development talks directly to FastAPI.
+// Production uses the Vercel same-origin /api rewrite to Render.
 const API_BASE_URL =
-    import.meta.env.VITE_API_URL ||
-    (window.location.hostname === "localhost"
+    window.location.hostname === "localhost"
         ? "http://localhost:8000"
-        : "https://ai-career-copilot-k4d0.onrender.com");
+        : "";
 
 const API_URL = `${API_BASE_URL}/api`;
 
