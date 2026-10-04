@@ -5,10 +5,11 @@ load_dotenv()
 import os
 
 from fastapi import FastAPI
-from app.api.routes.career import router as career_router
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.auth import router as auth_router
 from app.api.resume import router as resume_router
-from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.career import router as career_router
 
 
 app = FastAPI(
@@ -16,9 +17,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
+frontend_urls = [
+    url.strip()
+    for url in os.getenv("FRONTEND_URL", "http://localhost:5173").split(",")
+    if url.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:5173")],
+    allow_origins=frontend_urls,
+    allow_origin_regex=r"^https://ai-career-copilot.*\\.vercel\\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
