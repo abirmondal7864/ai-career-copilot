@@ -20,35 +20,47 @@ function CareerProfile() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        loadProfile();
-    }, []);
+        let ignore = false;
 
-    const loadProfile = async () => {
-        try {
-            const data = await apiRequest("/career/profile");
+        const loadProfile = async () => {
+            try {
+                const data = await apiRequest("/career/profile");
 
-            setForm({
-                name: data.name || "",
-                education: data.education || "",
-                skills: data.skills?.join(", ") || "",
-                projects: data.projects?.join(", ") || "",
-                experience: data.experience?.join(", ") || "",
-                target_role: data.target_role || "",
-                career_goal: data.career_goal || "",
-                years_experience: data.years_experience || 0,
-            });
+                if (!ignore) {
+                    setForm({
+                        name: data.name || "",
+                        education: data.education || "",
+                        skills: data.skills?.join(", ") || "",
+                        projects: data.projects?.join(", ") || "",
+                        experience: data.experience?.join(", ") || "",
+                        target_role: data.target_role || "",
+                        career_goal: data.career_goal || "",
+                        years_experience: data.years_experience || 0,
+                    });
 
-            setProfileExists(true);
-        } catch (error) {
-            if (error.message === "Career profile not found.") {
-                setProfileExists(false);
-            } else {
-                setError(error.message);
+                    setProfileExists(true);
+                }
+            } catch (error) {
+                if (!ignore) {
+                    if (error.message === "Career profile not found.") {
+                        setProfileExists(false);
+                    } else {
+                        setError(error.message);
+                    }
+                }
+            } finally {
+                if (!ignore) {
+                    setLoading(false);
+                }
             }
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        loadProfile();
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
 
     const handleChange = (e) => {
         setForm({

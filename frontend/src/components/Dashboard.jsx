@@ -11,10 +11,6 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const loadProfile = async () => {
     setLoading(true);
     setError("");
@@ -44,6 +40,48 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchDashboardData = async () => {
+      try {
+        const data = await apiRequest("/career/profile");
+        if (ignore) return;
+        setProfile(data);
+
+        const resumeData = await apiRequest("/resume/");
+        if (ignore) return;
+        setResumes(resumeData);
+
+        const analyzedResume = resumeData.find(
+          (resume) => resume.analysis
+        );
+
+        if (analyzedResume && !ignore) {
+          setAnalysis(analyzedResume.analysis);
+        }
+      } catch (error) {
+        if (ignore) return;
+        if (error.message === "Career profile not found.") {
+          setProfile(null);
+        } else {
+          console.error("Profile error:", error);
+          setError(error.message || "Unable to load your career profile.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDashboardData();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   if (loading) {
     return (

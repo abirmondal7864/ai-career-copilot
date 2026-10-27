@@ -42,7 +42,26 @@ function ResumeUpload() {
   };
 
   useEffect(() => {
-    fetchResumes();
+    let ignore = false;
+
+    const loadResumes = async () => {
+      try {
+        const data = await apiRequest("/resume/");
+        if (!ignore) {
+          setResumes(data);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(err.message || "Unable to load resumes.");
+        }
+      }
+    };
+
+    loadResumes();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleUpload = async () => {
