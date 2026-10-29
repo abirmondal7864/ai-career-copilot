@@ -4,15 +4,15 @@ import os
 from alembic import command
 from alembic.config import Config
 from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.resume import router as resume_router
 from app.api.routes.career import router as career_router
-
-
-load_dotenv()
 
 
 def run_migrations():
@@ -22,9 +22,9 @@ def run_migrations():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    run_migrations()
+    if os.getenv("TESTING") != "1":
+        run_migrations()
     yield
-
 
 app = FastAPI(
     title="AI Career Copilot API",
