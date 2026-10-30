@@ -1,3 +1,5 @@
+from unittest.mock import Mock
+
 def register_and_login(client):
     client.post(
         "/api/auth/register",
@@ -124,3 +126,92 @@ def test_update_profile(client):
 
     assert data["career_goal"] == "Become a Cloud Engineer"
     assert data["target_role"] == "Cloud Engineer"
+
+
+
+def test_analyze_profile_requires_authentication(client):
+    response = client.post("/api/career/analyze")
+
+    assert response.status_code == 401
+
+
+def test_analyze_profile_without_profile(client, monkeypatch):
+    token = register_and_login(client)
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    mock_ai = Mock()
+
+    monkeypatch.setattr(
+        "app.api.routes.career.analyze_career_profile",
+        mock_ai,
+    )
+
+    response = client.post(
+        "/api/career/analyze",
+        headers=headers,
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Career profile not found."
+
+    # AI service must not run without a profile
+    mock_ai.assert_not_called()
+
+
+def test_analyze_profile_success(client, monkeypatch):
+    token = register_and_login(client)
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    # Fake AI response
+    mock_response = {
+        "readiness_score": 75,
+        "summary": "Good foundation for a software engineering role.",
+        "strengths": ["Java", "Python"],
+        "skill_gaps": ["System Design"],
+        "recommended_skills": ["AWS", "Docker"],
+        "recommended_projects": ["Cloud Deployment Project"],
+        "roadmap": ["Learn AWS", "Practice DSA"],
+    }
+
+    mock_ai = Mock(return_value=mock_response)
+
+    monkeypatch.setattr(
+        "app.api.routes.career.analyze_career_profile",
+        mock_ai,
+    )
+
+    # Create career profile
+    create_response = client.post(
+        "/api/career/profile",
+        json=career_payload(),
+        headers=headers,
+    )
+
+    assert create_response.status_code == 201
+
+    # Test AI endpoint
+    response = client.post(
+        "/api/career/analyze",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["readiness_score"] == 75
+    assert data["summary"] == mock_response["summary"]
+    assert data["strengths"] == ["Java", "Python"]
+    assert data["skill_gaps"] == ["System Design"]
+    assert data["recommended_skills"] == ["AWS", "Docker"]
+    assert data["recommended_projects"] == ["Cloud Deployment Project"]
+    assert data["roadmap"] == ["Learn AWS", "Practice DSA"]
+
+    # Verify AI service was called exactly once
+    mock_ai.assert_called_once()
