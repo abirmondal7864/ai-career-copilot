@@ -1,4 +1,4 @@
-
+import pytest
 from unittest.mock import Mock
 
 from app.schemas.resume_ai import ResumeAIResponse
@@ -170,3 +170,104 @@ def test_analyze_resume_success(client, monkeypatch):
     mock_ai.assert_called_once_with(
         "Python Java React. B.Tech CSE."
     )
+
+
+
+
+def test_upload_resume_requires_authentication(client):
+    response = client.post(
+        "/api/resume/",
+        files={
+            "file": (
+                "resume.pdf",
+                b"fake pdf",
+                "application/pdf",
+            )
+        },
+    )
+
+    assert response.status_code == 401
+
+
+def test_upload_non_pdf_rejected(client):
+    token = register_and_login(client)
+
+    response = client.post(
+        "/api/resume/",
+        headers={"Authorization": f"Bearer {token}"},
+        files={
+            "file": (
+                "resume.txt",
+                b"Some text",
+                "text/plain",
+            )
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Only PDF files are allowed"
+
+
+def test_get_resumes_requires_authentication(client):
+    response = client.get("/api/resume/")
+
+    assert response.status_code == 401
+
+
+def test_get_resumes_returns_user_resumes(client, monkeypatch):
+    token = register_and_login(client)
+
+    upload_test_resume(client, token, monkeypatch)
+
+    response = client.get(
+        "/api/resume/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["file_name"] == "resume.pdf"
+
+
+
+def test_upload_resume_extraction_failure(client, monkeypatch):
+    token = register_and_login(client)
+
+    import os
+
+    captured_path = {}
+
+    def failing_parser(file_path):
+        captured_path["path"] = file_path
+        raise RuntimeError("PDF extraction failed")
+
+    monkeypatch.setattr(
+        "app.api.resume.extract_text_from_pdf",
+        failing_parser,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="PDF extraction failed",
+    ):
+        client.post(
+            "/api/resume/",
+            headers={"Authorization": f"Bearer {token}"},
+            files={
+                "file": (
+                    "resume.pdf",
+                    b"fake pdf",
+                    "application/pdf",
+                )
+            },
+        )
+
+    assert "path" in captured_path
+    assert not os.path.exists(captured_path["path"])
+
+
+    # With the default TestClient, the exception propagates.
+    # The assertion below is not reached if the exception propagates.
