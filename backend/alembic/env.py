@@ -4,16 +4,19 @@ from logging.config import fileConfig
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
-
+# Load environment variables FIRST
+load_dotenv(
+    dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"),
+    override=False
+)
+# Import application modules AFTER loading environment variables
 from app.db.database import Base
 from app.models.user import User
 from app.models.career_profile import CareerProfile
 from app.models.resume import Resume
 
 
-load_dotenv()
 
 config = context.config
 
