@@ -9,6 +9,7 @@ import CareerProfile from "./components/CareerProfile";
 import CareerAnalysis from "./pages/CareerAnalysis";
 import ResumeUpload from "./pages/ResumeUpload";
 import ResumeAnalysis from "./components/ResumeAnalysis";
+import { Analytics } from "@vercel/analytics/react";
 
 import "./App.css";
 
@@ -18,6 +19,7 @@ function App() {
   return (
     <>
       {isAuthenticated && <Navbar />}
+      <Analytics />
 
       <Routes>
         <Route
