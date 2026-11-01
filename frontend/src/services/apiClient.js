@@ -40,7 +40,22 @@ export async function apiRequest(endpoint, options = {}) {
             window.location.href = "/login";
         }
 
-        throw new Error(data.detail || "API request failed");
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem("access_token");
+                window.location.href = "/login";
+            }
+
+            const detail = data.detail;
+
+            const errorMessage = Array.isArray(detail)
+                ? detail.map((err) => err.msg || JSON.stringify(err)).join(", ")
+                : typeof detail === "object" && detail !== null
+                    ? JSON.stringify(detail)
+                    : detail || "API request failed";
+
+            throw new Error(errorMessage);
+        }
     }
 
     return data;
