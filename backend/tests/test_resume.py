@@ -16,8 +16,8 @@ def register_and_login(client, email="resume@example.com"):
 
     response = client.post(
         "/api/auth/login",
-        json={
-            "email": email,
+        data={
+            "username": email,
             "password": "password123",
         },
     )
@@ -80,21 +80,10 @@ def test_analyze_resume_not_found(client, monkeypatch):
 
 
 def test_analyze_resume_forbidden_for_another_user(client, monkeypatch):
-    token1 = register_and_login(
-        client,
-        "user1@example.com",
-    )
+    token1 = register_and_login(client, "user1@example.com")
+    token2 = register_and_login(client, "user2@example.com")
 
-    token2 = register_and_login(
-        client,
-        "user2@example.com",
-    )
-
-    resume_id = upload_test_resume(
-        client,
-        token1,
-        monkeypatch,
-    )
+    resume_id = upload_test_resume(client, token1, monkeypatch)
 
     mock_ai = Mock()
 
@@ -117,11 +106,7 @@ def test_analyze_resume_forbidden_for_another_user(client, monkeypatch):
 def test_analyze_resume_success(client, monkeypatch):
     token = register_and_login(client)
 
-    resume_id = upload_test_resume(
-        client,
-        token,
-        monkeypatch,
-    )
+    resume_id = upload_test_resume(client, token, monkeypatch)
 
     mock_response = {
         "readiness_score": 75,
@@ -162,16 +147,10 @@ def test_analyze_resume_success(client, monkeypatch):
     assert analysis["strengths"] == ["Java", "Python"]
     assert analysis["skill_gaps"] == ["System Design"]
     assert analysis["recommended_skills"] == ["AWS", "Docker"]
-    assert analysis["recommended_projects"] == [
-        "Cloud Deployment Project"
-    ]
+    assert analysis["recommended_projects"] == ["Cloud Deployment Project"]
     assert analysis["roadmap"] == ["Learn AWS", "Practice DSA"]
 
-    mock_ai.assert_called_once_with(
-        "Python Java React. B.Tech CSE."
-    )
-
-
+    mock_ai.assert_called_once_with("Python Java React. B.Tech CSE.")
 
 
 def test_upload_resume_requires_authentication(client):
@@ -232,7 +211,6 @@ def test_get_resumes_returns_user_resumes(client, monkeypatch):
     assert data[0]["file_name"] == "resume.pdf"
 
 
-
 def test_upload_resume_extraction_failure(client, monkeypatch):
     token = register_and_login(client)
 
@@ -267,7 +245,3 @@ def test_upload_resume_extraction_failure(client, monkeypatch):
 
     assert "path" in captured_path
     assert not os.path.exists(captured_path["path"])
-
-
-    # With the default TestClient, the exception propagates.
-    # The assertion below is not reached if the exception propagates.
