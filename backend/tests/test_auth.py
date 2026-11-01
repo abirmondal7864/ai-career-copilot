@@ -58,8 +58,8 @@ def test_login_returns_access_token(client):
 
     response = client.post(
         "/api/auth/login",
-        json={
-            "email": "login@example.com",
+        data={
+            "username": "login@example.com",
             "password": "password123",
         },
     )
