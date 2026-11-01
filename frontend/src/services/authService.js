@@ -10,9 +10,12 @@ export async function register(userData) {
 export async function login(email, password) {
     return apiRequest("/auth/login", {
         method: "POST",
-        body: JSON.stringify({
-            email,
-            password,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            username: email,
+            password: password,
         }),
     });
 }
