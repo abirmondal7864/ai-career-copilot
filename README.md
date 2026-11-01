@@ -179,32 +179,25 @@ GitHub Actions runs these checks automatically for pushes and pull requests targ
 
 ## 🔄 CI/CD Flow
 
+The workflow runs on pushes to `main` and pull requests targeting `main`.
+
 ```text
-Developer
-   │
-   ▼
-git push / Pull Request
-   │
-   ▼
-GitHub Actions
-   ├── Frontend lint
-   ├── Frontend build
-   ├── Backend syntax check
-   ├── Backend tests
-   └── Coverage ≥ 90%
-   │
-   ▼
-main
-   │
-   ├──────────────► Vercel
-   │                 Frontend deployment
-   │
-   └──────────────► Render
-                     Backend deployment
-                           │
-                           ▼
-                       PostgreSQL
+                   Push to main
+                        │
+             ┌──────────┴──────────┐
+             ▼                     ▼
+      GitHub Actions          Deployment platforms
+             │                     │
+       ┌─────┴─────┐         ┌─────┴─────┐
+       ▼           ▼         ▼           ▼
+   Frontend     Backend   Vercel      Render
+   ESLint       Syntax    React       FastAPI
+   Build        Pytest    deployment  deployment
+                Coverage
+                ≥ 90%
 ```
+
+**Important deployment detail:** Vercel and Render are connected to the GitHub repository and configured to deploy from `main` automatically when commits are pushed. The current setup runs CI checks and platform deployments from the same push; it does **not** configure deployment as a job that waits for GitHub Actions to pass. Pull requests run CI checks, while production auto-deploy is configured for commits to `main`.
 
 ## 🚀 Production
 
@@ -212,7 +205,7 @@ main
 - **API:** https://ai-career-copilot-k4d0.onrender.com
 - **Repository:** https://github.com/abirmondal7864/ai-career-copilot
 
-The current Vercel production deployment is connected to `main` and is reporting **READY**.
+Vercel and Render are both configured for automatic deployments from the repository's `main` branch. Check the platform dashboards for the latest deployment status.
 
 ## 🔐 Security
 
@@ -243,8 +236,8 @@ After deployment, verify the main user flow with a fresh test account:
 10. Refresh the app and confirm authentication/profile state persists
 11. Confirm invalid/expired authentication is rejected
 
-## 📌 Status
+## 📌 Project Status
 
-**Production-ready portfolio project.**
+The application is deployed on Vercel and Render. Automated CI checks have passed for the latest verified GitHub Actions run. The production smoke-test checklist above is provided for manual end-to-end verification; completing CI does not by itself prove every live user flow.
 
-Built as a practical full-stack + AI application to demonstrate REST API design, authentication, database migrations, testing, CI/CD, cloud deployment, and LLM-powered career features.
+Built as a practical full-stack + AI application to demonstrate REST API design, authentication, database migrations, automated testing, CI/CD configuration, cloud deployment, and LLM-powered career features.
