@@ -12,8 +12,8 @@ def register_and_login(client):
 
     response = client.post(
         "/api/auth/login",
-        json={
-            "email": "career@example.com",
+        data={
+            "username": "career@example.com",
             "password": "password123",
         },
     )
@@ -128,7 +128,6 @@ def test_update_profile(client):
     assert data["target_role"] == "Cloud Engineer"
 
 
-
 def test_analyze_profile_requires_authentication(client):
     response = client.post("/api/career/analyze")
 
@@ -157,7 +156,6 @@ def test_analyze_profile_without_profile(client, monkeypatch):
     assert response.status_code == 404
     assert response.json()["detail"] == "Career profile not found."
 
-    # AI service must not run without a profile
     mock_ai.assert_not_called()
 
 
@@ -168,7 +166,6 @@ def test_analyze_profile_success(client, monkeypatch):
         "Authorization": f"Bearer {token}"
     }
 
-    # Fake AI response
     mock_response = {
         "readiness_score": 75,
         "summary": "Good foundation for a software engineering role.",
@@ -186,7 +183,6 @@ def test_analyze_profile_success(client, monkeypatch):
         mock_ai,
     )
 
-    # Create career profile
     create_response = client.post(
         "/api/career/profile",
         json=career_payload(),
@@ -195,7 +191,6 @@ def test_analyze_profile_success(client, monkeypatch):
 
     assert create_response.status_code == 201
 
-    # Test AI endpoint
     response = client.post(
         "/api/career/analyze",
         headers=headers,
@@ -213,5 +208,4 @@ def test_analyze_profile_success(client, monkeypatch):
     assert data["recommended_projects"] == ["Cloud Deployment Project"]
     assert data["roadmap"] == ["Learn AWS", "Practice DSA"]
 
-    # Verify AI service was called exactly once
     mock_ai.assert_called_once()
