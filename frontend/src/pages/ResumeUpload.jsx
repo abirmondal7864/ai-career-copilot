@@ -10,7 +10,7 @@ function ResumeUpload() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resumes, setResumes] = useState([]);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzingResumeId, setAnalyzingResumeId] = useState(null);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -97,25 +97,32 @@ function ResumeUpload() {
     }
   };
 
-  const handleAnalyze = async (resumeId) => {
-    setAnalyzing(true);
+  const handleAnalyze = async (resume) => {
     setError("");
 
+    // Existing analyses are snapshots. Open them without overwriting
+    // them with a new result or another resume's analysis.
+    if (resume.analysis) {
+      navigate(`/resume/analysis?resume_id=${resume.id}`);
+      return;
+    }
+
+    setAnalyzingResumeId(resume.id);
+
     try {
-      const data = await apiRequest(
-        `/resume/analyze?resume_id=${resumeId}`,
+      await apiRequest(
+        `/resume/analyze?resume_id=${resume.id}`,
         {
           method: "POST",
         }
       );
 
-      localStorage.setItem("resume_analysis", JSON.stringify(data));
-
-      navigate("/resume/analysis");
+      await fetchResumes();
+      navigate(`/resume/analysis?resume_id=${resume.id}`);
     } catch (err) {
       setError(err.message || "Unable to analyze resume.");
     } finally {
-      setAnalyzing(false);
+      setAnalyzingResumeId(null);
     }
   };
 
@@ -199,10 +206,10 @@ function ResumeUpload() {
             </p>
           </div>
         ) : (
-          resumes.map((resume,index) => (
+          resumes.map((resume, index) => (
             <div className="resume-card" key={resume.id}>
               <div className="resume-info">
-                <strong>Resume {index + 1}</strong>
+                <strong>Resume {resumes.length - index}</strong>
                 <p>{resume.file_name}</p>
               </div>
 
@@ -213,10 +220,14 @@ function ResumeUpload() {
 
                 <button
                   className="secondary-button"
-                  onClick={() => handleAnalyze(resume.id)}
-                  disabled={analyzing}
+                  onClick={() => handleAnalyze(resume)}
+                  disabled={analyzingResumeId !== null}
                 >
-                  {analyzing ? "Analyzing..." : "Analyze Resume"}
+                  {analyzingResumeId === resume.id
+                    ? "Analyzing..."
+                    : resume.analysis
+                      ? "View Analysis"
+                      : "Analyze Resume"}
                 </button>
               </div>
             </div>

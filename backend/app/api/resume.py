@@ -1,4 +1,3 @@
-from app.models import resume
 import os
 import tempfile
 
@@ -8,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.resume import Resume
 from app.models.user import User
+from app.models.career_profile import CareerProfile
 from app.schemas.resume import ResumeResponse
 from app.schemas.resume_ai import ResumeAnalysisResponse
 from app.api.dependencies import get_current_user
@@ -67,13 +67,32 @@ def get_resumes(
         .all()
     )
 
-    print("CURRENT USER:", current_user.id, current_user.email)
-    print(
-        "USER RESUMES:",
-        [(r.id, r.user_id, r.file_name) for r in resumes]
+    return resumes
+
+
+@router.get("/{resume_id}", response_model=ResumeResponse)
+def get_resume(
+    resume_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    resume = (
+        db.query(Resume)
+        .filter(
+            Resume.id == resume_id,
+            Resume.user_id == current_user.id,
+        )
+        .first()
     )
 
-    return resumes
+    if not resume:
+        raise HTTPException(
+            status_code=404,
+            detail="Resume not found",
+        )
+
+    return resume
+
 
 @router.post("/analyze", response_model=ResumeAnalysisResponse)
 def analyze_resume(
@@ -96,9 +115,22 @@ def analyze_resume(
             detail="Resume not found"
         )
 
-    analysis = analyze_resume_with_ai(str(resume.content))
+    career_profile = (
+        db.query(CareerProfile)
+        .filter(CareerProfile.user_id == current_user.id)
+        .first()
+    )
 
-    resume.analysis = analysis.model_dump() # type: ignore
+    resume_text = str(resume.content or "")
+
+    # Preserve compatibility with callers/tests that expect the original
+    # one-argument call when no saved Career Profile exists.
+    if career_profile is None:
+        analysis = analyze_resume_with_ai(resume_text)
+    else:
+        analysis = analyze_resume_with_ai(resume_text, career_profile)
+
+    resume.analysis = analysis.model_dump()  # type: ignore
 
     db.commit()
     db.refresh(resume)
