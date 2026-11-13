@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 
@@ -18,6 +19,8 @@ router = APIRouter(
     prefix="/resume",
     tags=["Resume"],
 )
+
+logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=ResumeResponse)
@@ -125,10 +128,18 @@ def analyze_resume(
 
     # Preserve compatibility with callers/tests that expect the original
     # one-argument call when no saved Career Profile exists.
-    if career_profile is None:
-        analysis = analyze_resume_with_ai(resume_text)
-    else:
-        analysis = analyze_resume_with_ai(resume_text, career_profile)
+    try:
+        if career_profile is None:
+            analysis = analyze_resume_with_ai(resume_text)
+        else:
+            analysis = analyze_resume_with_ai(resume_text, career_profile)
+    except Exception:
+        # Keep provider/parser details in server logs, never expose them to clients.
+        logger.exception("Resume AI analysis failed for resume_id=%s", resume_id)
+        raise HTTPException(
+            status_code=502,
+            detail="Resume analysis provider failed. Please try again later.",
+        ) from None
 
     resume.analysis = analysis.model_dump()  # type: ignore
 
