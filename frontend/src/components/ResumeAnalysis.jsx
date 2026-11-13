@@ -1,39 +1,48 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiRequest } from "../services/apiClient";
 
 function ResumeAnalysis() {
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get("resume_id");
   const [analysis, setAnalysis] = useState(null);
+  const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let ignore = false;
+
     const fetchAnalysis = async () => {
+      if (!resumeId) {
+        setError("Select a resume from the Resume page to view its analysis.");
+        return;
+      }
+
       try {
-        const resumes = await apiRequest("/resume/");
+        const resume = await apiRequest(`/resume/${resumeId}`);
 
-        const analyzedResume = resumes.find(
-          (resume) => resume.analysis
-        );
-
-        if (!analyzedResume) {
-          setError(
-            "No resume analysis found. Upload and analyze a resume first."
-          );
+        if (!resume.analysis) {
+          setError("This resume has not been analyzed yet. Return to the Resume page and analyze it first.");
           return;
         }
 
-        setAnalysis(analyzedResume.analysis);
-
-        // Remove old cross-account cached analysis.
-        localStorage.removeItem("resume_analysis");
+        if (!ignore) {
+          setAnalysis(resume.analysis);
+          setFileName(resume.file_name);
+        }
       } catch (err) {
-        setError(
-          err.message || "Unable to load resume analysis."
-        );
+        if (!ignore) {
+          setError(err.message || "Unable to load this resume's analysis.");
+        }
       }
     };
 
     fetchAnalysis();
-  }, []);
+
+    return () => {
+      ignore = true;
+    };
+  }, [resumeId]);
 
   if (error) {
     return (
@@ -85,7 +94,7 @@ function ResumeAnalysis() {
       <div className="page-header">
         <h1>Resume Analysis</h1>
         <p>
-          AI-powered analysis of your resume and career profile.
+          AI-powered analysis of {fileName || "your resume"} and career profile.
         </p>
       </div>
 
@@ -100,7 +109,7 @@ function ResumeAnalysis() {
         </div>
 
         <p className="score-caption">
-          Based on your resume, skills, and career profile.
+          Based on this resume and the career profile available when it was analyzed.
         </p>
       </div>
 
