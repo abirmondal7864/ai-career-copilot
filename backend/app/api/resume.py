@@ -121,10 +121,14 @@ def analyze_resume(
         .first()
     )
 
-    analysis = analyze_resume_with_ai(
-        str(resume.content or ""),
-        career_profile,
-    )
+    resume_text = str(resume.content or "")
+
+    # Preserve compatibility with callers/tests that expect the original
+    # one-argument call when no saved Career Profile exists.
+    if career_profile is None:
+        analysis = analyze_resume_with_ai(resume_text)
+    else:
+        analysis = analyze_resume_with_ai(resume_text, career_profile)
 
     resume.analysis = analysis.model_dump()  # type: ignore
 
