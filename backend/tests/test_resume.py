@@ -245,3 +245,29 @@ def test_upload_resume_extraction_failure(client, monkeypatch):
 
     assert "path" in captured_path
     assert not os.path.exists(captured_path["path"])
+
+def test_analyze_resume_ai_failure_returns_502_with_cors(client, monkeypatch):
+    token = register_and_login(client)
+    resume_id = upload_test_resume(client, token, monkeypatch)
+
+    def failing_ai(*args, **kwargs):
+        raise RuntimeError("Gemini provider failure")
+
+    monkeypatch.setattr(
+        "app.api.resume.analyze_resume_with_ai",
+        failing_ai,
+    )
+
+    response = client.post(
+        "/api/resume/analyze",
+        params={"resume_id": resume_id},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Origin": "https://ai-career-copilot-six-plum.vercel.app",
+        },
+    )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Resume analysis provider failed. Please try again later."
+    assert response.headers["access-control-allow-origin"] == "https://ai-career-copilot-six-plum.vercel.app"
+
