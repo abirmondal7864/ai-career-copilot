@@ -87,7 +87,9 @@ Use this exact structure:
 """
 
     response = client.models.generate_content(
-        model="gemini-flash-lite-latest",
+        # Use a stable model ID supported by the SDK's default v1 API.
+        # The gemini-flash-lite-latest alias is only available on v1beta.
+        model="gemini-3.5-flash-lite",
         contents=prompt,
     )
 
