@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../services/apiClient";
 
+const SELECTED_RESUME_KEY = "selected_resume_id";
+
 function ResumeUpload() {
   const navigate = useNavigate();
 
@@ -14,7 +16,6 @@ function ResumeUpload() {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-
     setMessage("");
     setError("");
 
@@ -47,21 +48,14 @@ function ResumeUpload() {
     const loadResumes = async () => {
       try {
         const data = await apiRequest("/resume/");
-        if (!ignore) {
-          setResumes(data);
-        }
+        if (!ignore) setResumes(data);
       } catch (err) {
-        if (!ignore) {
-          setError(err.message || "Unable to load resumes.");
-        }
+        if (!ignore) setError(err.message || "Unable to load resumes.");
       }
     };
 
     loadResumes();
-
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, []);
 
   const handleUpload = async () => {
@@ -77,18 +71,10 @@ function ResumeUpload() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-
-      const data = await apiRequest("/resume/", {
-        method: "POST",
-        body: formData,
-      });
+      const data = await apiRequest("/resume/", { method: "POST", body: formData });
 
       setMessage(`Resume uploaded successfully: ${data.file_name}`);
       setFile(null);
-
-      localStorage.removeItem("career_analysis");
-      localStorage.removeItem("resume_analysis");
-
       await fetchResumes();
     } catch (err) {
       setError(err.message || "Unable to upload resume.");
@@ -99,9 +85,8 @@ function ResumeUpload() {
 
   const handleAnalyze = async (resume) => {
     setError("");
+    localStorage.setItem(SELECTED_RESUME_KEY, String(resume.id));
 
-    // Existing analyses are snapshots. Open them without overwriting
-    // them with a new result or another resume's analysis.
     if (resume.analysis) {
       navigate(`/resume/analysis?resume_id=${resume.id}`);
       return;
@@ -110,13 +95,7 @@ function ResumeUpload() {
     setAnalyzingResumeId(resume.id);
 
     try {
-      await apiRequest(
-        `/resume/analyze?resume_id=${resume.id}`,
-        {
-          method: "POST",
-        }
-      );
-
+      await apiRequest(`/resume/analyze?resume_id=${resume.id}`, { method: "POST" });
       await fetchResumes();
       navigate(`/resume/analysis?resume_id=${resume.id}`);
     } catch (err) {
@@ -130,27 +109,17 @@ function ResumeUpload() {
     <div className="resume-upload-container">
       <div className="page-header">
         <h1>Upload Resume</h1>
-        <p>
-          Upload your latest resume to analyze your career profile.
-        </p>
+        <p>Upload your latest resume to analyze your career profile.</p>
       </div>
 
       <div className="upload-box">
         <div className="upload-icon">📄</div>
-
         <h2>Upload your PDF resume</h2>
-
-        <p className="upload-description">
-          Choose a PDF file from your device to get started.
-        </p>
+        <p className="upload-description">Choose a PDF file from your device to get started.</p>
 
         <label className="file-input-label">
           Choose PDF
-          <input
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleFileChange}
-          />
+          <input type="file" accept=".pdf,application/pdf" onChange={handleFileChange} />
         </label>
 
         {file && (
@@ -160,39 +129,22 @@ function ResumeUpload() {
           </div>
         )}
 
-        <button
-          className="primary-button"
-          onClick={handleUpload}
-          disabled={!file || loading}
-        >
+        <button className="primary-button" onClick={handleUpload} disabled={!file || loading}>
           {loading ? "Uploading..." : "Upload Resume"}
         </button>
 
-        {message && (
-          <div className="success-message">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {message && <div className="success-message">{message}</div>}
+        {error && <div className="error-message">{error}</div>}
       </div>
 
       <div className="resume-list">
         <div className="resume-list-header">
           <div>
             <h2>Your Resumes</h2>
-            <p>
-              Manage and analyze your uploaded resumes.
-            </p>
+            <p>Manage and analyze your uploaded resumes.</p>
           </div>
-
           <span className="resume-count">
-            {resumes.length}{" "}
-            {resumes.length === 1 ? "resume" : "resumes"}
+            {resumes.length} {resumes.length === 1 ? "resume" : "resumes"}
           </span>
         </div>
 
@@ -200,10 +152,7 @@ function ResumeUpload() {
           <div className="empty-state">
             <div className="empty-icon">📂</div>
             <h3>No resumes uploaded yet</h3>
-            <p>
-              Upload your first PDF resume above to start your
-              career analysis.
-            </p>
+            <p>Upload your first PDF resume above to start your career analysis.</p>
           </div>
         ) : (
           resumes.map((resume, index) => (
@@ -212,12 +161,8 @@ function ResumeUpload() {
                 <strong>Resume {resumes.length - index}</strong>
                 <p>{resume.file_name}</p>
               </div>
-
               <div className="resume-actions">
-                <span className="uploaded-status">
-                  ✓ Uploaded
-                </span>
-
+                <span className="uploaded-status">✓ Uploaded</span>
                 <button
                   className="secondary-button"
                   onClick={() => handleAnalyze(resume)}
@@ -225,9 +170,7 @@ function ResumeUpload() {
                 >
                   {analyzingResumeId === resume.id
                     ? "Analyzing..."
-                    : resume.analysis
-                      ? "View Analysis"
-                      : "Analyze Resume"}
+                    : resume.analysis ? "View Analysis" : "Analyze Resume"}
                 </button>
               </div>
             </div>
